@@ -1,0 +1,304 @@
+//CRICKET TEAM SQUAD MANAGEMENT SYSTEM
+//LINKED STORAGE AND RETREIVAL OF DATA OF CRICKET TEAM SQUAD USING FILE HANDLING 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+struct node
+{
+    char name[20],country[20];
+    int matches,runs;
+    struct node *link;
+};
+typedef struct node * NODE;
+NODE getnode(char name[20],char country[20],int match, int runs)
+{
+    NODE temp = (NODE)malloc(sizeof(struct node));
+    strcpy(temp->country,country);
+    strcpy(temp->name,name);
+    temp->matches=match;
+    temp->runs=runs;
+    temp->link=NULL;
+    return temp;
+}
+NODE add(NODE first)
+{
+    NODE temp,cur;
+    char buf[20];
+    char name[20],country[20];
+    int matches,runs;
+    gets(buf);
+    printf("Enter Player Name : ");
+    gets(name);
+    printf("Enter Player Country : ");
+    gets(country);
+    printf("Enter Number Of matches Played : ");
+    scanf("%d",&matches);
+    printf("Enter Runs Scored : ");
+    scanf("%d",&runs);
+    temp = getnode(name,country,matches,runs);
+    cur = first;
+    if(first == NULL)
+    {
+        first = temp;
+        return first;
+    }
+    else
+    {
+        while(cur->link!=NULL)
+        {
+            cur = cur->link;
+        }
+        cur->link = temp;
+        return first;
+    }
+}
+NODE insert(NODE first,char name[20],char country[20],int matches, int runs)
+{
+    NODE cur,temp;
+    temp = getnode(name,country,matches,runs);
+    cur = first;
+    if(first == NULL)
+    {
+        first = temp;
+        return first;
+    }
+    else
+    {
+        while(cur->link!=NULL)
+        {
+            cur = cur->link;
+        }
+        cur->link = temp;
+        return first;
+    }
+}
+NODE create(NODE first)
+{
+    int N,i;
+    printf("Enter Number Of Players : ");
+    scanf("%d",&N);
+    for(i=1;i<=N;i++)
+    {
+        printf("Player-%d\n",i);
+        first=add(first);
+    }
+    return first;
+}
+int isempty()
+{
+	FILE *fp;
+    char *path = "Player.txt";
+	int size;
+
+	fp = fopen(path, "r");
+
+	if (fp)
+	{
+		fseek (fp, 0, SEEK_END);
+		size = ftell(fp);
+		fclose(fp);
+	}
+    if(size==0)
+    return 0;
+    else 
+    return 1; 
+}
+void display(NODE first)
+{
+    int i=1;
+    NODE cur=first;
+    printf("SL.NO\tNAME\tCOUNTRY\tMATCHES\tRUNS\n");
+    while(cur!=NULL)
+    {
+        printf("%d\t%s\t%s\t%d\t%d\n",i,cur->name,cur->country,cur->matches,cur->runs);
+        cur = cur->link;
+        i++;
+    }
+}
+void playerdisplay(NODE first, int pos)
+{
+    NODE cur = first;
+    printf("NAME\tCOUNTRY\tMATCHES\tRUNS\n");
+    while(pos != 1)
+    {
+        cur = cur->link;
+        pos--;
+    }
+    printf("%s\t%s\t%d\t%d\n",cur->name,cur->country,cur->matches,cur->runs);
+}
+void print(NODE first)
+{
+    FILE *out_file = fopen("Player.txt","w");
+    int i=1;
+    NODE cur=first;
+    fprintf(out_file,"SL.NO\tNAME\tCOUNTRY\tMATCHES\tRUNS\n");
+    while(cur->link!=NULL)
+    {
+        fprintf(out_file,"%d\t%s\t\t%s\t\t%d\t\t%d\n",i,cur->name,cur->country,cur->matches,cur->runs);
+        cur = cur->link;
+        i++;
+    }
+    fprintf(out_file,"%d\t%s\t\t%s\t\t%d\t\t%d",i,cur->name,cur->country,cur->matches,cur->runs);
+    fclose(out_file);
+}
+NODE readprevious(NODE first)
+{
+  int i=0;
+  char name[20],country[20];
+  char buf1[20],buf2[20],buf3[20];
+  int matches,runs;
+  FILE *out_file = fopen("Player.txt", "r");
+  if (out_file== NULL)
+  {
+    printf("ERROR : COULD NOT OPEN DATABASE FILE\n");
+    return NULL;
+  }
+  if(isempty==0)
+  {
+    fscanf(out_file, "%d\t%s\t\t%s\t\t%d\t\t%d", &i,name,country,&matches,&runs);
+    return NULL;
+  }
+  else
+  {
+    fscanf(out_file, "%s\t%s\t%s\t%s\t%s", name,country,buf3,buf2,buf3);
+  while (!feof(out_file))
+  {
+    fscanf(out_file, "%d\t%s\t\t%s\t\t%d\t\t%d", &i,name,country,&matches,&runs);
+    first=insert(first,name,country,matches,runs);
+  }
+  fclose(out_file);
+  return first;
+  }
+}
+int search(NODE first, char name[20])
+{
+    int i=1,flag=0,pos=0;
+    NODE cur;
+    cur = first;
+    do
+    {
+        if(strcmp(cur->name,name)==0)
+        {
+            flag = 1;
+            pos = i;
+            break;
+        }
+        cur = cur->link;
+        i++;
+    }while(cur!=NULL);
+    if(flag==1)
+    return pos;
+    else
+    return 0;
+}
+NODE deletebyplayer(NODE first,char name[20])
+{
+    int i=0, pos = search(first,name);
+    NODE prev,cur;
+    prev=NULL;cur=first;
+    printf("Deleted Player :\n");
+    playerdisplay(first,pos);
+    if(pos==1)
+    {
+        first=first->link;
+        print(first);
+        return first;
+    }
+    else
+    {
+         while(i<=pos&&cur->link!=NULL)
+        {
+            prev = cur;
+            cur = cur->link;
+            pos--;
+        }
+        prev->link = cur->link;
+        free(cur);
+        cur = NULL;
+        print(first);
+        return first;
+    }
+}
+NODE modify(NODE first)
+{
+    NODE cur = first;
+    char name[20];
+    char buf[20];
+    int matches,runs,pos;
+    gets(buf);
+    printf("Enter Player name to be modified : ");
+    gets(name);
+    pos = search(first,name);
+    if(pos!=0)
+    {
+        printf("Enter Number Of matches Played : ");
+        scanf("%d",&matches);
+        printf("Enter Runs Scored : ");
+        scanf("%d",&runs);
+        while(pos != 1)
+        {
+            cur = cur->link;
+            pos--;
+        }
+        cur->runs=runs;
+        cur->matches=matches;
+        return first;
+    }
+    else
+    {
+        printf("Player Not Found\n");
+        return first;
+    }
+    
+}
+void main()
+{
+    NODE first = NULL;
+    int choice,pos;
+    char buf[20],name[20];
+    first=readprevious(first);
+    display(first);
+    
+    for(;;)
+    {
+        printf("Menu\n1.Read\n2.Display\n3.Add Player\n4.Search Player\n5.Delete Player\n6.Modify Player\n7.Exit\n");
+        printf("Enter Your Choice : ");
+        scanf("%d",&choice);
+        switch (choice)
+        {
+        case 1 : first=create(first);
+                 print(first);
+                 break;
+        case 2 : display(first);
+                 print(first);
+                 break;
+        case 3 : first = add(first);
+                 print(first);
+                 display(first);
+                 break;
+        case 4 : gets(buf);
+                 printf("Enter Player Name : ");
+                 gets(name);
+                 pos = search(first,name);
+                 if(pos!=0)
+                 playerdisplay(first,pos);
+                 else 
+                 printf("Player Not Found\n");
+                 break;
+        case 5 : gets(buf);
+                 printf("Enter Player Name : ");
+                 gets(name);
+                 first = deletebyplayer(first,name);
+                 print(first);
+                 display(first);
+                 break;
+        case 6 : first = modify(first);
+                 print(first);
+                 display(first);
+                 break;
+        case 7 : printf("!! THANK YOU !!\n");
+                 exit(0);
+        default: printf("Invalid Choice\n");
+        }
+    }
+}
