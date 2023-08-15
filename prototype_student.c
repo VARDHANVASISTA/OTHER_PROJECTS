@@ -270,6 +270,7 @@ void main()
 {
     int CA,SR,ch;
     SN HEAD;
+    HEAD=createnode();
     HEAD->no_cour=HEAD->no_stu=0;
     printf("enter the number of courses:\n");
     scanf("%d",&CA);
@@ -289,3 +290,6 @@ void main()
         }
     }
 }
+
+
+
