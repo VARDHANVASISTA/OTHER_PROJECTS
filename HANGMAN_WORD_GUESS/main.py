@@ -1,5 +1,5 @@
 import random
-import logo_of_game
+import logo
 import hangman_stages
 import words_list
 
