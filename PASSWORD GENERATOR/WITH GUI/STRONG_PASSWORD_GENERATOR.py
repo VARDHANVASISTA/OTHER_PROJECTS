@@ -3,12 +3,17 @@ from tkinter import messagebox
 import random
 import string
 
-# Function to generate the password
 def generate_password():
-    length = int(length_entry.get())  # Get the desired password length from user input
+    try:
+        length = int(length_entry.get())  # Get the desired password length from user input
+        if length <= 0:
+            raise ValueError  
+    except ValueError:
+        messagebox.showerror("Invalid Input", "Please enter a valid number greater than 0 for the password length.")
+        return
+    
     complexity = complexity_var.get()  # Get the complexity option from user input
 
-    # Define the character set based on complexity
     if complexity == 'Low':
         chars = string.ascii_lowercase
     elif complexity == 'Medium':
@@ -22,7 +27,6 @@ def generate_password():
     # Open a new window to display the password
     display_password_window(password)
 
-# Function to display the password in a new window
 def display_password_window(password):
     pw_window = tk.Toplevel(root)
     pw_window.title("Your Strong Password")
@@ -32,7 +36,6 @@ def display_password_window(password):
     pw_entry.pack(pady=5)
     pw_entry.insert(0, password)
 
-    # Function to copy the password to clipboard from the new window
     def copy_pw():
         pw_window.clipboard_clear()
         pw_window.clipboard_append(pw_entry.get())
